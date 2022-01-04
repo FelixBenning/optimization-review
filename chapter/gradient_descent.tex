@@ -439,21 +439,53 @@ that we use it to bound the learning rate, ensuring that
 \(1-\lr\hesseEV_\dimension\) is larger than \(-1\). If we did not have an upper
 bound, then we could not guarantee this ``stability'' of \ref{eq: gradient descent}.
 
-As we do not want to assume the Hessian exists, let us integrate (\ref{eq:
+As we do not want to assume the Hessian exists, let us ``integrate'' (\ref{eq:
 upper lower bound on hesse matrix}) and use the constants to make sure that we
-have equality of the functions and derivatives in \(\weights\). Then we get
-\begin{align}\label{eq: bregman divergence upper and lower bound}
-	\frac{\lbound}{2}\| \theta - \weights\|^2
-	\le \underbrace{
-		\Loss(\theta) - \Loss(\weights) - \langle \nabla \Loss(\weights), \theta-\weights\rangle
-	}_{=:\bregmanDiv{\Loss}(\theta, \weights)\quad\text{(Bregman Divergence)}}
-	\le \frac{\ubound}{2}\| \theta - \weights\|^2.
-\end{align}
-The ``Bregman Divergence'' is the distance between the real function and its first
-Taylor approximation. If we move the first Taylor approximation from the
-middle to the sides on the other hand, this represents a quadratic upper and lower
-bound on \(\Loss\) as illustrated in Figure~\ref{fig: visualize strong
-convexity}. For \(\lbound=0\) we get the definition of convexity again.
+have equality of the functions and derivatives in \(\weights\).
+\begin{lemma}
+	From (\ref{eq: upper lower bound on hesse matrix}) follows
+	\begin{align}\label{eq: bregman divergence upper and lower bound}
+		\frac{\lbound}{2}\| \theta - \weights\|^2
+		\le \underbrace{
+			\Loss(\theta) - \Loss(\weights) - \langle \nabla \Loss(\weights), \theta-\weights\rangle
+		}_{=:\bregmanDiv{\Loss}(\theta, \weights)\quad\text{(Bregman Divergence)}}
+		\le \frac{\ubound}{2}\| \theta - \weights\|^2.
+	\end{align}
+\end{lemma}
+\begin{remark}
+	The ``Bregman Divergence'' is the distance between the real function and its first
+	Taylor approximation. If we move the first Taylor approximation from the
+	middle to the sides on the other hand, this represents a quadratic upper and lower
+	bound on \(\Loss\) as illustrated in Figure~\ref{fig: visualize strong
+	convexity}. For \(\lbound=0\) we get the definition of convexity again.
+\end{remark}
+\begin{proof}
+	Define
+	\begin{align*}
+		g(\theta)&:=\bregmanDiv{\Loss}(\theta,\weights),\\
+		f(\theta)&:=\tfrac\lbound2\|\theta-\weights\|^2, 
+	\end{align*}
+	then we have for \(h:=g-f\)
+	\begin{align*}
+		\nabla^2 h(\theta) &\succsim 0
+		\quad \forall \theta
+	\end{align*}
+	due to (\ref{eq: upper lower bound on hesse matrix}). And therefore by
+	Taylor expansion with integral remainder, we have
+	\begin{align*}
+		h(\theta)
+		&= \underbrace{h(\weights)}_{=0}
+		+ \langle \underbrace{\nabla h(\weights)}_{=0}, \theta-\weights\rangle 
+		+ \int_0^1 \langle
+		\underbrace{
+			\nabla^2 h(\weights + t(\theta-\weights))(\theta-\weights),
+			\theta-\weights
+		}_{\ge 0}
+		\rangle dt\\
+		&\ge 0 \quad \forall \theta.
+	\end{align*}
+	This proves the first inequality. The proof for the second inequality is analogous.
+\end{proof}
 \begin{definition}\label{def: strong convexity}
 	A function \(\Loss\) is \(\lbound\)-\emph{strongly convex} for some
 	\(\lbound>0\), if for all \(x,y\in\reals^\dimension\)
